@@ -5,12 +5,7 @@ import { ImageSlider } from "../../components/ImageSlider";
 import { Accessory } from "../../components/Accessory";
 import { Button } from "../../components/Button";
 
-import SpeedSvg from "../../assets/speed.svg";
-import AccelerationSvg from "../../assets/acceleration.svg";
-import ForceSvg from "../../assets/force.svg";
-import GasolineSvg from "../../assets/gasoline.svg";
-import ExchangeSvg from "../../assets/exchange.svg";
-import PeopleSvg from "../../assets/people.svg";
+import { getIconByType } from "../../utils/getIconByType";
 
 import {
   Container,
@@ -25,55 +20,69 @@ import {
   Period,
   Price,
   About,
-  Acessories,
+  Accessories,
   Footer,
 } from "./styles";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { CarType } from "../../types";
+
+interface Params {
+  car: CarType;
+}
 
 export function CarDetails() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { car } = route.params as Params;
+
+  function handleScheduling() {
+    navigation.navigate("Scheduling");
+  }
+
+  function handleBackHome() {
+    navigation.goBack();
+  }
+
   return (
     <Container>
       <Header>
-        <BackButton onPress={() => {}} />
+        <BackButton onPress={handleBackHome} />
       </Header>
       <CarImages>
-        <ImageSlider
-          imagesUrl={[
-            "http://fordsuperauto.com.br/img/carros/fiesta-hatch/NewFiestaHatch34F-PrataDublin.jpg",
-          ]}
-        />
+        <ImageSlider imagesUrl={car.photos} />
       </CarImages>
 
       <Content>
         <Details>
           <Description>
-            <Brand>Ford</Brand>
-            <Name>New Fiesta</Name>
+            <Brand>{car.brand}</Brand>
+            <Name>{car.name}</Name>
           </Description>
 
           <Rent>
-            <Period>Ao dia</Period>
-            <Price>R$ 100,00</Price>
+            <Period>{car.rent.period}</Period>
+            <Price>R$ {car.rent.price}</Price>
           </Rent>
         </Details>
 
-        <Acessories>
-          <Accessory name="380 km/h" icon={SpeedSvg} />
-          <Accessory name="3.2 s" icon={AccelerationSvg} />
-          <Accessory name="800 HP" icon={ForceSvg} />
-          <Accessory name="Gasolina" icon={GasolineSvg} />
-          <Accessory name="Auto" icon={ExchangeSvg} />
-          <Accessory name="2 pessoas" icon={PeopleSvg} />
-        </Acessories>
+        <Accessories>
+          {car.accessories.map((item, index) => (
+            <Accessory
+              name={item.name}
+              icon={getIconByType(item.type)}
+              key={index}
+            />
+          ))}
+        </Accessories>
 
-        <About>
-          Este é automóvel desportivo. Surgiu do lendário touro de lide
-          indultado na praça Real Maestranza de Sevilla. É um belíssimo carro
-          para quem gosta de acelerar.
-        </About>
+        <About>{car.about}</About>
       </Content>
 
       <Footer>
-        <Button title="Escolher período do aluguel" />
+        <Button
+          title="Escolher período do aluguel"
+          onPress={handleScheduling}
+        />
       </Footer>
     </Container>
   );

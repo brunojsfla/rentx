@@ -1,24 +1,49 @@
-import React from "react";
-import { StatusBar } from "react-native";
+import React, { useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { StatusBar, ActivityIndicator } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import Logo from "../../assets/logo.svg";
 
-import { Container, Header, TotalCars, HeaderContent, CarList } from "./styles";
+import {
+  Container,
+  Header,
+  TotalCars,
+  HeaderContent,
+  CarList,
+  ContainerLoading,
+} from "./styles";
 
 import { Car } from "../../components/Car";
 
+import api from "../../services/api";
+
+import { CarType } from "../../types";
+
 export function Home() {
-  const data = {
-    brand: "Audi",
-    name: "RS Coupé",
-    rent: {
-      period: "Ao dia",
-      price: 120,
-    },
-    thumbnail:
-      "https://carsguide-res.cloudinary.com/image/upload/f_auto,fl_lossy,q_auto,t_cg_hero_low/v1/editorial/vhs/Audi-RS5-Coupe.png",
-  };
+  const navigation = useNavigation();
+  const [cars, setCars] = useState<CarType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function findCars() {
+      try {
+        const response = await api.get("/cars");
+
+        setCars(response.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    findCars();
+  }, []);
+
+  function handleCarDetails(car: CarType) {
+    navigation.navigate("CarDetails", { car });
+  }
 
   return (
     <Container>
@@ -30,14 +55,23 @@ export function Home() {
       <Header>
         <HeaderContent>
           <Logo width={RFValue(108)} height={RFValue(12)} />
-          <TotalCars>Total de 12 carros</TotalCars>
+          <TotalCars>Total de {cars.length} carros</TotalCars>
         </HeaderContent>
       </Header>
-      <CarList
-        renderItem={({ item }) => <Car data={data} />}
-        keyExtractor={(item) => String(item)}
-        data={[1, 2, 3, 4, 5, 6, 7]}
-      />
+      {loading && (
+        <ContainerLoading>
+          <ActivityIndicator size={"large"} color="red" />
+        </ContainerLoading>
+      )}
+      {!loading && (
+        <CarList
+          data={cars}
+          renderItem={({ item }) => (
+            <Car data={item} onPress={() => handleCarDetails(item)} />
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </Container>
   );
 }

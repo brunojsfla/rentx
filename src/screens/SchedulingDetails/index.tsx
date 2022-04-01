@@ -41,9 +41,16 @@ import {
   RentalPriceTotal,
 } from "./styles";
 import { RFValue } from "react-native-responsive-fontsize";
+import { useNavigation } from "@react-navigation/native";
 
 export function SchedulingDetails() {
   const theme = useTheme();
+  const navigation = useNavigation();
+
+  function handleSuccess() {
+    navigation.navigate("SchedulingComplete");
+  }
+
   return (
     <Container>
       <Header>
@@ -114,7 +121,11 @@ export function SchedulingDetails() {
       </Content>
 
       <Footer>
-        <Button title="Alugar agora" color={theme.colors.success} />
+        <Button
+          title="Alugar agora"
+          color={theme.colors.success}
+          onPress={handleSuccess}
+        />
       </Footer>
     </Container>
   );

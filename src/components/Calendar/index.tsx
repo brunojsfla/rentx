@@ -52,9 +52,7 @@ export function Calendar() {
   LocaleConfig.defaultLocale = "pt-br";
 
   const theme = useTheme();
-  console.log('====================================');
-  console.log(new Date().toString());
-  console.log('====================================');
+
   return (
     <CustomCalendar
       renderArrow={(direction) => (
