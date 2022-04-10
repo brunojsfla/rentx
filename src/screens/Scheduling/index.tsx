@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "styled-components";
 
 import { BackButton } from "../../components/BackButton";
@@ -13,21 +13,88 @@ import {
   DateInfo,
   DateTitle,
   DateValue,
-  Content, 
+  Content,
   Footer,
 } from "./styles";
-import { StatusBar } from "react-native";
+import { Alert, StatusBar } from "react-native";
 import { Button } from "../../components/Button";
-import { Calendar } from "../../components/Calendar";
-import { useNavigation } from "@react-navigation/native";
+import {
+  Calendar,
+  DayProps,
+  generateInterval,
+  MarkedDateProps,
+} from "../../components/Calendar";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { format } from "date-fns";
+import { getPlatformDate } from "../../utils/getPlatformDate";
+import { CarType } from "../../types";
+
+interface RentalPeriod {
+  start: number;
+  startFormatted: string;
+  end: number;
+  endFormatted: string;
+}
+
+interface Params {
+  car: CarType;
+}
 
 export function Scheduling() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const route = useRoute();
+  const { car } = route.params as Params;
 
-  function handleScheduligDetails(){
-    navigation.navigate('SchedulingDetails');
+  const [lastSelectedDate, setLastSelectedDate] = useState<DayProps>(
+    {} as DayProps
+  );
+  const [markedDates, setMarkedDates] = useState<MarkedDateProps>(
+    {} as MarkedDateProps
+  );
+  const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod>(
+    {} as RentalPeriod
+  );
+
+  function handleScheduligDetails() {
+    if (!rentalPeriod.start || !rentalPeriod.end) {
+      Alert.alert("Nenhum período selecionado!");
+    } else {
+      navigation.navigate("SchedulingDetails", { car, dates: rentalPeriod });
+    }
   }
+
+  function handleGoBack() {
+    navigation.goBack();
+  }
+
+  function handleChangeDate(date: DayProps) {
+    let start = !lastSelectedDate.timestamp ? date : lastSelectedDate;
+    let end = date;
+
+    if (start.timestamp > end.timestamp) {
+      start = end;
+      end = start;
+    }
+
+    setLastSelectedDate(end);
+    const interval = generateInterval(start, end);
+    setMarkedDates(interval);
+
+    const firstDate = Object.keys(interval)[0];
+    const endDate = Object.keys(interval)[Object.keys(interval).length - 1];
+
+    setRentalPeriod({
+      start: new Date(firstDate).getTime(),
+      end: new Date(endDate).getTime(),
+      startFormatted: format(
+        getPlatformDate(new Date(firstDate)),
+        "dd/MM/yyyy"
+      ),
+      endFormatted: format(getPlatformDate(new Date(endDate)), "dd/MM/yyyy"),
+    });
+  }
+
   return (
     <Container>
       <Header>
@@ -36,30 +103,33 @@ export function Scheduling() {
           translucent
           backgroundColor="transparent"
         />
-        <BackButton onPress={() => {}} color={theme.colors.shape} />
+        <BackButton onPress={handleGoBack} color={theme.colors.shape} />
         <Title>{`Escolha uma \ndata de início e \nfim do aluguel`}</Title>
 
         <RentalPeriod>
           <DateInfo>
             <DateTitle>DE</DateTitle>
-            <DateValue selected={false}>21/04/2022</DateValue>
+            <DateValue selected={!!rentalPeriod.startFormatted}>
+              {rentalPeriod.startFormatted}
+            </DateValue>
           </DateInfo>
           <ArrowSvg />
           <DateInfo>
             <DateTitle>ATÉ</DateTitle>
-            <DateValue selected={false}>26/04/2022</DateValue>
+            <DateValue selected={!!rentalPeriod.endFormatted}>
+              {rentalPeriod.endFormatted}
+            </DateValue>
           </DateInfo>
         </RentalPeriod>
       </Header>
 
       <Content>
-          <Calendar />
+        <Calendar markedDates={markedDates} onDayPress={handleChangeDate} />
       </Content>
 
       <Footer>
-          <Button title="Confirmar" onPress={handleScheduligDetails}/>
+        <Button title="Confirmar" onPress={handleScheduligDetails} />
       </Footer>
-
     </Container>
   );
 }
