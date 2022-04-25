@@ -16,7 +16,7 @@ import {
   Content,
   Footer,
 } from "./styles";
-import { Alert, StatusBar } from "react-native";
+import { StatusBar } from "react-native";
 import { Button } from "../../components/Button";
 import {
   Calendar,
@@ -57,11 +57,7 @@ export function Scheduling() {
   );
 
   function handleScheduligDetails() {
-    if (!rentalPeriod.start || !rentalPeriod.end) {
-      Alert.alert("Nenhum período selecionado!");
-    } else {
-      navigation.navigate("SchedulingDetails", { car, dates: rentalPeriod });
-    }
+    navigation.navigate("SchedulingDetails", { car, dates: rentalPeriod });
   }
 
   function handleGoBack() {
@@ -128,7 +124,11 @@ export function Scheduling() {
       </Content>
 
       <Footer>
-        <Button title="Confirmar" onPress={handleScheduligDetails} />
+        <Button
+          title="Confirmar"
+          onPress={handleScheduligDetails}
+          enabled={!!rentalPeriod.startFormatted}
+        />
       </Footer>
     </Container>
   );

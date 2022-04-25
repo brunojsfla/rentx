@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "styled-components";
 
 import { BackButton } from "../../components/BackButton";
@@ -59,6 +59,7 @@ export function SchedulingDetails() {
   const navigation = useNavigation();
   const route = useRoute();
   const { car, dates } = route.params as Params;
+  const [loading, setLoading] = useState(false);
 
   const numberDays = eachDayOfInterval({
     start: getPlatformDate(new Date(dates.start)),
@@ -66,17 +67,23 @@ export function SchedulingDetails() {
   });
 
   async function handleSuccess() {
+    setLoading(true);
     const schedulesByCar = await api.get(`/schedules_bycars/${car.id}`);
     const intervalDateFormatted = numberDays.map((item) =>
       format(item, "yyyy-MM-dd")
     );
 
-    console.log("Intervalo de datas", intervalDateFormatted);
-
     const unavailable_dates = [
       ...schedulesByCar.data.unavailable_dates,
       ...intervalDateFormatted,
     ];
+
+    await api.post("/schedules_byuser", {
+      user_id: 2,
+      car,
+      startDate: format(getPlatformDate(new Date(dates.start)), "dd/MM/yyy"),
+      endDate: format(getPlatformDate(new Date(dates.end)), "dd/MM/yyyy"),
+    });
 
     api
       .put(`/schedules_bycars/${car.id}`, {
@@ -88,7 +95,8 @@ export function SchedulingDetails() {
         Alert.alert(
           "Falha ao confirmar o agendamento. Por favor, tente novamente mais tarde!"
         )
-      );
+      )
+      .finally(() => setLoading(false));
   }
 
   function handleGoBack() {
@@ -170,6 +178,8 @@ export function SchedulingDetails() {
           title="Alugar agora"
           color={theme.colors.success}
           onPress={handleSuccess}
+          loading={loading}
+          enabled={!loading}
         />
       </Footer>
     </Container>

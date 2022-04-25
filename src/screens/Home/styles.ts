@@ -3,6 +3,7 @@ import { FlatList, FlatListProps } from "react-native";
 import styled from "styled-components/native";
 
 import { CarType } from "../../types";
+import { RectButton } from "react-native-gesture-handler";
 
 export const Container = styled.View`
   flex: 1;
@@ -43,4 +44,19 @@ export const ContainerLoading = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
+`;
+
+export const MyCarsButton = styled(RectButton)`
+  width: 60px;
+  height: 60px;
+
+  background-color: ${({ theme }) => theme.colors.main};
+  border-radius: 30px;
+
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  bottom: 13px;
+  right: 22px;
 `;
