@@ -4,6 +4,7 @@ import styled from "styled-components/native";
 
 import { CarType } from "../../types";
 import { RectButton } from "react-native-gesture-handler";
+import Animated from "react-native-reanimated";
 
 export const Container = styled.View`
   flex: 1;
@@ -33,7 +34,9 @@ export const TotalCars = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const CarList = styled(FlatList as new (props: FlatListProps<CarType>) => FlatList<CarType>).attrs({
+export const CarList = styled(
+  FlatList as new (props: FlatListProps<CarType>) => FlatList<CarType>
+).attrs({
   contentContainerStyle: {
     padding: 24,
   },
@@ -46,7 +49,9 @@ export const ContainerLoading = styled.View`
   align-items: center;
 `;
 
-export const MyCarsButton = styled(RectButton)`
+export const MyCarsButton = styled(
+  Animated.createAnimatedComponent(RectButton)
+)`
   width: 60px;
   height: 60px;
 
@@ -55,8 +60,4 @@ export const MyCarsButton = styled(RectButton)`
 
   align-items: center;
   justify-content: center;
-
-  position: absolute;
-  bottom: 13px;
-  right: 22px;
 `;

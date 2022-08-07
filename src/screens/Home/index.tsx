@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { StatusBar, ActivityIndicator } from "react-native";
+import { StatusBar, ActivityIndicator, BackHandler } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import Logo from "../../assets/logo.svg";
 import { Ionicons } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
 
 import {
   Container,
@@ -24,10 +25,47 @@ import { CarType } from "../../types";
 
 import { useTheme } from "styled-components";
 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  useAnimatedGestureHandler,
+  withSpring,
+} from "react-native-reanimated";
+import { PanGestureHandler } from "react-native-gesture-handler";
+
 export function Home() {
+  const animation = useRef(null);
   const navigation = useNavigation();
   const [cars, setCars] = useState<CarType[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const positionX = useSharedValue(0);
+  const positionY = useSharedValue(0);
+
+  const myCarsButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: positionX.value },
+        { translateY: positionY.value },
+      ],
+    };
+  });
+
+  const onGestureEvent = useAnimatedGestureHandler({
+    onStart(_, ctx: any) {
+      ctx.positionX = positionX.value;
+      ctx.positionY = positionY.value;
+    },
+    onActive(event, ctx: any) {
+      positionX.value = ctx.positionX + event.translationX;
+      positionY.value = ctx.positionY + event.translationY;
+    },
+    onEnd() {
+      positionX.value = withSpring(0);
+      positionY.value = withSpring(0);
+    },
+  });
+
   const theme = useTheme();
 
   useEffect(() => {
@@ -46,6 +84,12 @@ export function Home() {
     findCars();
   }, []);
 
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => {
+      return true;
+    });
+  }, []);
+
   function handleCarDetails(car: CarType) {
     navigation.navigate("CarDetails", { car });
   }
@@ -53,7 +97,6 @@ export function Home() {
   function handleOpenMyCars() {
     navigation.navigate("MyCars");
   }
-
 
   return (
     <Container>
@@ -65,12 +108,18 @@ export function Home() {
       <Header>
         <HeaderContent>
           <Logo width={RFValue(108)} height={RFValue(12)} />
-          <TotalCars>Total de {cars.length} carros</TotalCars>
+          {!loading && <TotalCars>Total de {cars.length} carros</TotalCars>}
         </HeaderContent>
       </Header>
       {loading && (
         <ContainerLoading>
-          <ActivityIndicator size={"large"} color="red" />
+          <LottieView
+            autoPlay
+            loop
+            ref={animation}
+            style={{ width: 400, height: 400 }}
+            source={require("../../assets/load_animation.json")}
+          />
         </ContainerLoading>
       )}
       {!loading && (
@@ -83,9 +132,22 @@ export function Home() {
         />
       )}
 
-      <MyCarsButton onPress={handleOpenMyCars}>
-        <Ionicons name="ios-car-sport" size={32} color={theme.colors.shape} />
-      </MyCarsButton>
+      <PanGestureHandler onGestureEvent={onGestureEvent}>
+        <Animated.View
+          style={[
+            myCarsButtonStyle,
+            { position: "absolute", bottom: 13, right: 22 },
+          ]}
+        >
+          <MyCarsButton onPress={handleOpenMyCars}>
+            <Ionicons
+              name="ios-car-sport"
+              size={32}
+              color={theme.colors.shape}
+            />
+          </MyCarsButton>
+        </Animated.View>
+      </PanGestureHandler>
     </Container>
   );
 }

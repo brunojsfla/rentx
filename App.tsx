@@ -1,5 +1,5 @@
 import React from "react";
-import 'react-native-gesture-handler';
+
 import {
   Archivo_400Regular,
   Archivo_500Medium,
@@ -13,8 +13,9 @@ import {
 import AppLoading from "expo-app-loading";
 import { ThemeProvider } from "styled-components/native";
 
-import {Routes} from './src/routes';
+import { Routes } from "./src/routes";
 import theme from "./src/styles/theme";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -30,7 +31,9 @@ export default function App() {
   }
   return (
     <ThemeProvider theme={theme}>
-      <Routes />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Routes />
+      </GestureHandlerRootView>
     </ThemeProvider>
   );
 }
