@@ -10,6 +10,7 @@ module.exports = function (api) {
         },
       ],
       "react-native-reanimated/plugin",
+      ["@babel/plugin-proposal-decorators", { legacy: true }],
     ],
   };
 };

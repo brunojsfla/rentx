@@ -1,9 +1,8 @@
 import React from "react";
 import { RectButtonProps } from "react-native-gesture-handler";
 
-import GasolineSvg from "../../assets/gasoline.svg";
-import {CarType} from '../../types';
 import { getIconByType } from "../../utils/getIconByType";
+import { Car as ModelCar } from "../../database/model/Car";
 
 import {
   Container,
@@ -17,12 +16,14 @@ import {
   Type,
   CarImage,
 } from "./styles";
-interface Props extends RectButtonProps{
-  data: CarType;
+import { useNetInfo } from "@react-native-community/netinfo";
+interface Props extends RectButtonProps {
+  data: ModelCar;
 }
 
 export function Car({ data, ...rest }: Props) {
-  const { brand, name, rent, thumbnail, fuel_type } = data;
+  const netInfo = useNetInfo();
+  const { brand, name, period, price, thumbnail, fuel_type } = data;
   const MotorTypeIcon = getIconByType(fuel_type);
   return (
     <Container {...rest}>
@@ -31,10 +32,12 @@ export function Car({ data, ...rest }: Props) {
         <Name>{name}</Name>
 
         <About>
-          <Rent>
-            <Period>{rent.period}</Period>
-            <Price>R$ {rent.price}</Price>
-          </Rent>
+          {netInfo.isConnected && (
+            <Rent>
+              <Period>{period}</Period>
+              <Price>R$ {price}</Price>
+            </Rent>
+          )}
 
           <Type>
             <MotorTypeIcon />
@@ -42,10 +45,7 @@ export function Car({ data, ...rest }: Props) {
         </About>
       </Details>
 
-      <CarImage
-        source={{uri: thumbnail}}
-        resizeMode="contain"
-      />
+      <CarImage source={{ uri: thumbnail }} resizeMode="contain" />
     </Container>
   );
 }

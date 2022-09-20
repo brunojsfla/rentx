@@ -1,4 +1,5 @@
 import React from "react";
+import { AppProvider } from "./src/hooks"; 
 
 import {
   Archivo_400Regular,
@@ -32,7 +33,9 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Routes />
+        <AppProvider>
+          <Routes />
+        </AppProvider>
       </GestureHandlerRootView>
     </ThemeProvider>
   );

@@ -5,6 +5,7 @@ import styled from "styled-components/native";
 import { CarType } from "../../types";
 import { RectButton } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
+import {Car as ModelCar} from '../../database/model/Car';
 
 export const Container = styled.View`
   flex: 1;
@@ -35,7 +36,7 @@ export const TotalCars = styled.Text`
 `;
 
 export const CarList = styled(
-  FlatList as new (props: FlatListProps<CarType>) => FlatList<CarType>
+  FlatList as new (props: FlatListProps<ModelCar>) => FlatList<ModelCar>
 ).attrs({
   contentContainerStyle: {
     padding: 24,
