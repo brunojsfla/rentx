@@ -40,7 +40,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [data, setData] = useState<User>({} as User);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
@@ -111,7 +111,7 @@ function AuthProvider({ children }: AuthProviderProps) {
           "Authorization"
         ] = `Bearer ${userData.token}`;
         setData(userData);
-        setLoading(false);
+        setLoading(true);
       }
     }
 

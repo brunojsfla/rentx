@@ -2,12 +2,13 @@ import { FlatList, FlatListProps } from "react-native";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 import { RFValue } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
-import { CarType } from "../../types";
+import { Car as ModelCar } from "../../database/model/Car";
 
 interface CarProps {
   id: string;
-  user_id: string;
-  car: CarType;
+  car: ModelCar;
+  start_date: string;
+  end_date: string;
 }
 
 export const Container = styled.View`
